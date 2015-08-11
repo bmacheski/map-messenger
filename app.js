@@ -8,7 +8,7 @@ app.use(express.static('public'));
 
 app.get('/', function (req, res) {
   res.render('index', {});
-})
+});
 
 var users = [
     {id: 1234, latitude: 33.7550, longitude: -84.3900},
@@ -16,6 +16,7 @@ var users = [
 ];
 
 io.on('connection', function (socket) {
+
   // upon initial connection adds location info/id to users array
   socket.on('connected user', function (data, id) {
     users.push({
@@ -24,11 +25,17 @@ io.on('connection', function (socket) {
       longitude: data.K
     })
   })
+
   // sends users location data to create markers
   socket.on('get locations', function (dataFunc) {
-    dataFunc(users)
+    dataFunc(users);
   })
-})
+
+  // emits new message to all users
+  socket.on('new message', function (m, i) {
+    socket.broadcast.emit('new message', m, i);
+  })
+});
 
 http.listen(3000, function () {
   console.log('Listening at http://localhost:3000')

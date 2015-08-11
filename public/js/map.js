@@ -10,21 +10,25 @@ function initialize () {
   navigator.geolocation.getCurrentPosition(createMap);
 
   function createMap (pos) {
+    console.log(userId);
     var lat = pos.coords.latitude;
     var lng = pos.coords.longitude;
     var myLatlng = new google.maps.LatLng(lat, lng);
     socket.emit('connected user', myLatlng, userId);
-    createMarker(myLatlng, userId)
+    createMarker(myLatlng, userId);
   }
   // get locations of already connected users
   socket.emit('get locations', createConnectedMarkers);
+  socket.on('new message', function (data, id) {
+    addMessage(data, id);
+  })
 
   function createMarker (markloc, uuid) {
     marker = new google.maps.Marker({
       id: uuid,
       position: markloc,
       map: map
-    })
+    });
     markers[uuid] = marker;
   }
 
@@ -39,6 +43,23 @@ function initialize () {
       createMarker(loc, uid);
     }
   }
+
+  function addMessage (msg, id) {
+    var uid = id || userId;
+    var infowindow = new google.maps.InfoWindow({
+      content: msg
+    });
+    infowindow.open(map, markers[uid]);
+  }
+
+  $('.search-field').keypress(function (e) {
+    var message = $(this).val();
+    if (e.which == 13) {
+      socket.emit('new message', message, userId);
+      addMessage(message);
+      $(this).val('');
+    }
+  })
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
