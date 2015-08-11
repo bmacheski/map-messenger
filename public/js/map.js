@@ -9,19 +9,14 @@ function initialize () {
   var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
   navigator.geolocation.getCurrentPosition(createMap);
 
+  // render map upon initial page load
   function createMap (pos) {
-    console.log(userId);
     var lat = pos.coords.latitude;
     var lng = pos.coords.longitude;
     var myLatlng = new google.maps.LatLng(lat, lng);
     socket.emit('connected user', myLatlng, userId);
     createMarker(myLatlng, userId);
   }
-  // get locations of already connected users
-  socket.emit('get locations', createConnectedMarkers);
-  socket.on('new message', function (data, id) {
-    addMessage(data, id);
-  })
 
   function createMarker (markloc, uuid) {
     marker = new google.maps.Marker({
@@ -32,7 +27,20 @@ function initialize () {
     markers[uuid] = marker;
   }
 
-  // loops through collection of connected users data
+  // get locations of currently connected users
+  socket.emit('get locations', createConnectedMarkers);
+  socket.on('new message', function (data, id) {
+    addMessage(data, id);
+  })
+
+  socket.on('connected user', function (data, id) {
+    var lat = data.G;
+    var long = data.K;
+    var loc = new google.maps.LatLng(lat, long);
+    createMarker(loc, id);
+  })
+
+  // loop through collection of connected users data
   function createConnectedMarkers (data) {
     var connected = data;
     for(var i=0; i<connected.length; i++){

@@ -24,14 +24,17 @@ io.on('connection', function (socket) {
       latitude: data.G,
       longitude: data.K
     })
+
+    // send locations of currently connected users
+    socket.broadcast.emit('connected user', data, id);
   })
 
-  // sends users location data to create markers
+  // send users location data to create markers
   socket.on('get locations', function (dataFunc) {
     dataFunc(users);
   })
 
-  // emits new message to all users
+  // emit new message to all users
   socket.on('new message', function (m, i) {
     socket.broadcast.emit('new message', m, i);
   })
