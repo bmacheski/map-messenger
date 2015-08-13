@@ -2,6 +2,8 @@ function initialize () {
   var userId = Math.random().toString(15).substring(2, 14);
   var socket = io();
   var markers = {};
+  var userwindow;
+  var otherwindow;
   var mapOptions = {
     zoom: 6,
     center: new google.maps.LatLng(36.174465, -86.767960)
@@ -30,7 +32,7 @@ function initialize () {
   // get locations of currently connected users
   socket.emit('get locations', createConnectedMarkers);
   socket.on('new message', function (data, id) {
-    addMessage(data, id);
+    addOtherMessage(data, id);
   })
 
   socket.on('connected user', function (data, id) {
@@ -52,19 +54,29 @@ function initialize () {
     }
   }
 
-  function addMessage (msg, id) {
-    var uid = id || userId;
-    var infowindow = new google.maps.InfoWindow({
-      content: msg
-    });
-    infowindow.open(map, markers[uid]);
+  // create message window for current client
+  function addUserMessage (msg, id) {
+    if (userwindow) {
+      userwindow.close(map, markers[id])
+    }
+    userwindow = new google.maps.InfoWindow({ content: msg });
+    userwindow.open(map, markers[id]);
+  }
+
+  // creates message window for other chat users
+  function addOtherMessage(msg, uid) {
+    if (otherwindow) {
+      otherwindow.close(map, markers[uid])
+    }
+    otherwindow = new google.maps.InfoWindow({ content: msg });
+    otherwindow.open(map, markers[uid]);
   }
 
   $('.search-field').keypress(function (e) {
     var message = $(this).val();
     if (e.which == 13) {
       socket.emit('new message', message, userId);
-      addMessage(message);
+      addUserMessage(message, userId);
       $(this).val('');
     }
   })
