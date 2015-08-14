@@ -10,23 +10,22 @@ app.get('/', function (req, res) {
   res.render('index', {});
 });
 
-var users = [
-    {id: 1234, latitude: 33.7550, longitude: -84.3900},
-    {id: 4567, latitude: 32.7833, longitude: -79.9333}
-];
+var users = [];
 
 io.on('connection', function (socket) {
 
   // upon initial connection adds location info/id to users array
   socket.on('connected user', function (data, id) {
+    var latitude = data.G;
+    var longitude = data.K;
     users.push({
       id: id,
-      latitude: data.G,
-      longitude: data.K
+      latitude: latitude,
+      longitude: longitude
     })
 
     // send locations of currently connected users
-    socket.broadcast.emit('connected user', data, id);
+    socket.broadcast.emit('connected user', latitude, longitude, id);
   })
 
   // send users location data to create markers
