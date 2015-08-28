@@ -75,6 +75,15 @@ function initialize () {
     createMarker(loc, id);
   })
 
+  socket.on('user disconnect', function(id) {
+    for(mark in markers) {
+      if(mark == id) {
+        markers[mark].setMap(null)
+        delete mark;
+      }
+    }
+  })
+
   $('.search-field').keypress(function (e) {
     var message = $(this).val();
     if (e.which == 13) {

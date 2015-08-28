@@ -21,7 +21,8 @@ io.on('connection', function (socket) {
     users.push({
       id: id,
       latitude: latitude,
-      longitude: longitude
+      longitude: longitude,
+      sid: socket.id
     })
 
     // send locations of currently connected users
@@ -36,6 +37,18 @@ io.on('connection', function (socket) {
   // emit new message to all users
   socket.on('new message', function (m, i) {
     socket.broadcast.emit('new message', m, i);
+  })
+
+  socket.on('disconnect', function() {
+    var disconnid;
+    for(var i = 0; i < users.length; i++) {
+      if(users[i].sid === socket.id) {
+        disconnid = users[i].id
+        users.splice(i, 1);
+      }
+    }
+    socket.broadcast.emit('user disconnect', disconnid)
+
   })
 });
 
