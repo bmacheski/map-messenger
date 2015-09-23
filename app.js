@@ -16,8 +16,8 @@ io.on('connection', function (socket) {
 
   // upon initial connection adds location info/id to users array
   socket.on('connected user', function (data, id) {
-    var latitude = data.G;
-    var longitude = data.K;
+    var latitude = data.H;
+    var longitude = data.L;
     users.push({
       id: id,
       latitude: latitude,

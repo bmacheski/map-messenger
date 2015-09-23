@@ -2,6 +2,7 @@ function initialize () {
   var userId = Math.random().toString(15).substring(2, 16);
   var socket = io();
   var markers = {};
+  var marker;
   var userwindow;
   var otherwindow;
   var mapOptions = { zoom: 6, center: calCoords(36.174465, -86.767960) };
